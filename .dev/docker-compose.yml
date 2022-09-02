@@ -1,0 +1,42 @@
+version: "3.5"
+
+services:
+  wordpress:
+    container_name: ${PROJECT_NAME}_wordpress
+    build: ../
+    restart: always
+    ports:
+      - "8111:80"
+    env_file:
+      - ./.env
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: ${MYSQL_ROOT_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      WORDPRESS_DB_NAME: ${PROJECT_NAME}_db
+      WORDPRESS_CONFIG_EXTRA: |
+        /* If you want to add any extra wordpress config */
+        # define('WP_ALLOW_MULTISITE', true );
+    volumes:
+      - ../themes:/var/www/html/wp-content/themes
+      - ../wp-config.php:/var/www/html/wp-config.php
+  db:
+    container_name: ${PROJECT_NAME}_db
+    image: mysql:5.7
+    command: mysqld --user=root
+    restart: always
+    logging:
+      driver: none
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USERNAME: ${MYSQL_ROOT_USER}
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${PROJECT_NAME}_db
+    volumes:
+      - ./db_data:/var/lib/mysql
+      - ./mysql-dump:/docker-entrypoint-initdb.d
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

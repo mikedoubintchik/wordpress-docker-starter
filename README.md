@@ -1,1 +1,1 @@
-# wordpress-docker-starter
+# WordPress Docker Starter
